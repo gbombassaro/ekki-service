@@ -10,6 +10,7 @@
     "express": "^4.17.1",
     "mongodb": "^3.6.3",
     "mongoose": "^5.11.11",
-    "nodemon": "^2.0.7"
+    "nodemon": "^2.0.7",
+    "random-hash": "^4.0.1"
   }
 }
