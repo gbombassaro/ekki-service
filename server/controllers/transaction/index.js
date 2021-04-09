@@ -1,7 +1,7 @@
 const User = require('../../models/user');
 const {RandomHash} = require('random-hash');
 const {validateTransaction} = require('./validate');
-const {update} = require('./update');
+const {updateAccount} = require('./update');
 
 const newTransaction = async (req, res) => {
   const {origin, destiny, value} = req.body;
@@ -33,11 +33,12 @@ const newTransaction = async (req, res) => {
     origin,
     destiny,
     value,
-    processedAt: new Date()
+    processedAt: new Date(),
+    status: 'approved'
   }
 
-  await update(origin, originFinalBalance, transactionInfo);
-  await update(destiny, destinyFinalBalance, transactionInfo);
+  await updateAccount(origin, originFinalBalance, transactionInfo);
+  await updateAccount(destiny, destinyFinalBalance, transactionInfo);
 
   return res.json({originBalance: originFinalBalance})
 }

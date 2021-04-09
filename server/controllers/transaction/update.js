@@ -1,6 +1,6 @@
 const User = require('../../models/user');
 
-const update = (origin, finalBalance, transactionInfo) => {
+const updateAccount = (origin, finalBalance, transactionInfo) => {
   return User.updateOne(
     {_id: origin},
     {balance: finalBalance, $push: {transactionHistory: transactionInfo}}
@@ -8,5 +8,5 @@ const update = (origin, finalBalance, transactionInfo) => {
 }
 
 module.exports = {
-  update
+  updateAccount
 }
