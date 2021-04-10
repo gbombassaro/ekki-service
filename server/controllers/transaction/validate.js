@@ -4,51 +4,56 @@ const {subMinutes, isAfter} = require('date-fns');
 const cancelLatestTransaction = (originData, value) => {
   const transactionHistory = originData.transactionHistory;
   const latestTransaction = transactionHistory[transactionHistory.length - 1];
+  const latestTransactionId = latestTransaction.id;
   const latestTransactionValue = latestTransaction.value;
   const latestTransactionTime = transactionHistory[transactionHistory.length - 1].processedAt;
   const now = new Date();
   const limit = subMinutes(now, 2);
   const cancelZone = isAfter(latestTransactionTime, limit);
-  if (cancelZone && value === latestTransactionValue) return {status: false}
-  return {status: true};
+  if (cancelZone && value === latestTransactionValue) return {
+    status: 'cancelLatest',
+    transactionId: latestTransactionId
+  }
+  return {status: false};
 }
 
 //Validate transaction using credit
-const checkAvailableCredit = (originData, value) => {
-  const availableCredit = originData.credit;
-  const finalCredit = availableCredit - value;
-  if (finalCredit < 0) return {status: false};
-  return {status: true, balance: value, credit: finalCredit};
-}
+const validateOriginAndDestiny = (originData, destinyData, value) => {
+  const originBalance = originData.balance;
+  const finalBalance = originBalance - value;
 
-//Main method
-const validateTransaction = (originData, value) => {
-  const {balance} = originData;
-  const finalBalance = balance - value;
-
-  const timeValidation = cancelLatestTransaction(originData, value);
-  if (!timeValidation.status) return {
-    success: 'pending',
-    balance: finalBalance
-  }
-
-  if (value > balance) {
-    const creditValidation = checkAvailableCredit(originData, finalBalance);
-    if (!creditValidation) return {
-      success: false,
+  if (finalBalance < 0) {
+    const {credit, creditLimit} = originData;
+    const valorFinal = credit + (finalBalance * -1);
+    if (valorFinal > creditLimit) return {
+      status: false,
       message: 'Saldo insuficiente.',
-      balance: finalBalance
     }
     return {
-      success: 'credit',
-      balance: creditValidation.balance,
-      credit: creditValidation.credit
+      status: 'credit',
+      originBalance: finalBalance,
+      originCredit: valorFinal,
+      destinyBalance: 0,
+      destinyCredit: 0,
     }
   }
+
+  // const destinyFinalBalance = destinyData.balance + value;
   return {
-    success: true,
-    balance: finalBalance
-  };
+    status: true,
+    originBalance: originBalance - value,
+    originCredit: originData.credit,
+    destinyBalance: 0,
+    destinyCredit: 0,
+  }
+}
+
+//Main validation method
+const validateTransaction = (originData, destinyData, value) => {
+  const timeValidation = cancelLatestTransaction(originData, value);
+  const validation = validateOriginAndDestiny(originData, destinyData, value);
+  if (timeValidation.status) return timeValidation;
+  return validation;
 }
 
 module.exports = {

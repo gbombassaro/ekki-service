@@ -15,33 +15,47 @@ const newTransaction = async (req, res) => {
   
   const originData = await User.findById(origin);
   const destinyData = await User.findById(destiny);
-  const validation = validateTransaction(originData, value);
+  const validation = validateTransaction(originData, destinyData, value);
 
-  if (!validation.success) {
+  if (!validation.status) {
     return res.status(422).json({
       error: true,
       message: validation.message
     })
   }
 
-  const originFinalBalance = validation.balance;
-  const destinyFinalBalance = destinyData.balance + value;
   const generateHash = new RandomHash();
   const transactionId = generateHash();
+  const originBalance = validation.originBalance
+  const originCredit = validation.originCredit
+  const destinyBalance = validation.destinyBalance
+  const destinyCredit = validation.destinyCredit
   const transactionInfo = {
     id: transactionId, 
-    origin,
-    destiny,
     value,
     processedAt: new Date(),
     status: 'approved'
   }
 
-  console.log(validation)
+  const originTicket = {
+    id: origin,
+    balance: originBalance,
+    credit: originCredit,
+    newTransaction: transactionInfo
+  }
 
-  // await updateAccount(origin, originFinalBalance, transactionInfo);
-  // await updateAccount(destiny, destinyFinalBalance, transactionInfo);
-  return res.json({originBalance: originFinalBalance})
+  const destinyTicket = {
+    id: origin,
+    balance: destinyBalance,
+    credit: destinyCredit,
+    newTransaction: transactionInfo
+  }
+
+  console.log("new transaction > ", transactionInfo);
+
+  // await updateAccount(originTicket);
+  // await updateAccount(destinyTicket);
+  return res.json(transactionInfo);
 }
 
 module.exports = {
