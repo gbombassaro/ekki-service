@@ -15,7 +15,7 @@ const newTransaction = async (req, res) => {
   
   const originData = await User.findById(origin);
   const destinyData = await User.findById(destiny);
-  const validation = validateTransaction(originData.balance, value);
+  const validation = validateTransaction(originData, value);
 
   if (!validation.success) {
     return res.status(422).json({
@@ -37,9 +37,10 @@ const newTransaction = async (req, res) => {
     status: 'approved'
   }
 
-  await updateAccount(origin, originFinalBalance, transactionInfo);
-  await updateAccount(destiny, destinyFinalBalance, transactionInfo);
+  console.log(validation)
 
+  // await updateAccount(origin, originFinalBalance, transactionInfo);
+  // await updateAccount(destiny, destinyFinalBalance, transactionInfo);
   return res.json({originBalance: originFinalBalance})
 }
 
