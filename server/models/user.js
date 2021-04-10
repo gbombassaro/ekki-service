@@ -25,6 +25,10 @@ const UserSchema = new Schema({
     type: Number,
     required: false
   },
+  creditLimit: {
+    type: Number,
+    required: true
+  },
   transactionHistory: {
     type: Array,
     required: false,
