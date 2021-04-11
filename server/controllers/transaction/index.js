@@ -1,7 +1,7 @@
 const User = require('../../models/user');
 const {RandomHash} = require('random-hash');
 const {validateTransaction} = require('./validate');
-const {updateAccount} = require('./update');
+const {updateAccount, cancelLatestTransaction} = require('./update');
 
 const newTransaction = async (req, res) => {
   const {origin, destiny, value} = req.body;
@@ -45,7 +45,7 @@ const newTransaction = async (req, res) => {
   }
 
   const destinyTicket = {
-    id: origin,
+    id: destiny,
     balance: destinyBalance,
     credit: destinyCredit,
     newTransaction: transactionInfo
@@ -53,8 +53,13 @@ const newTransaction = async (req, res) => {
 
   console.log("new transaction > ", transactionInfo);
 
-  // await updateAccount(originTicket);
-  // await updateAccount(destinyTicket);
+  //TODO: check cancel transaction action in database (not working)
+  if (validation.status === 'cancelLatest') {
+    await cancelLatestTransaction({id: origin, transactionId: validation.transactionId});
+    await cancelLatestTransaction({id: destiny, transactionId: validation.transactionId});
+  }
+  await updateAccount(originTicket);
+  await updateAccount(destinyTicket);
   return res.json(transactionInfo);
 }
 

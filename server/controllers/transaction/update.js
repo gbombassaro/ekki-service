@@ -13,6 +13,19 @@ const updateAccount = ({id, balance, credit, newTransaction}) => {
   );
 }
 
+const cancelLatestTransaction = ({id, transactionId}) => {
+  return User.updateOne(
+    {
+      _id: id,
+      transactionHistory: {id: transactionId},
+    },
+    {
+      $set: {'transactionHistory.$.status': 'canceled'}
+    }
+  )
+}
+
 module.exports = {
-  updateAccount
+  updateAccount,
+  cancelLatestTransaction
 }
