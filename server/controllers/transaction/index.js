@@ -1,7 +1,7 @@
 const User = require('../../models/user');
 const {RandomHash} = require('random-hash');
 const {validateTransaction} = require('./validate');
-const {update} = require('./update');
+const {updateAccount, cancelLatestTransaction} = require('./update');
 
 const newTransaction = async (req, res) => {
   const {origin, destiny, value} = req.body;
@@ -15,31 +15,52 @@ const newTransaction = async (req, res) => {
   
   const originData = await User.findById(origin);
   const destinyData = await User.findById(destiny);
-  const validation = validateTransaction(originData.balance, value);
+  const validation = validateTransaction(originData, destinyData, value);
 
-  if (!validation.success) {
+  if (!validation.status) {
     return res.status(422).json({
       error: true,
       message: validation.message
     })
   }
 
-  const originFinalBalance = validation.balance;
-  const destinyFinalBalance = destinyData.balance + value;
   const generateHash = new RandomHash();
   const transactionId = generateHash();
+  const originBalance = validation.originBalance
+  const originCredit = validation.originCredit
+  const destinyBalance = validation.destinyBalance
+  const destinyCredit = validation.destinyCredit
   const transactionInfo = {
     id: transactionId, 
-    origin,
-    destiny,
     value,
-    processedAt: new Date()
+    processedAt: new Date(),
+    status: 'approved'
   }
 
-  await update(origin, originFinalBalance, transactionInfo);
-  await update(destiny, destinyFinalBalance, transactionInfo);
+  const originTicket = {
+    id: origin,
+    balance: originBalance,
+    credit: originCredit,
+    newTransaction: transactionInfo
+  }
 
-  return res.json({originBalance: originFinalBalance})
+  const destinyTicket = {
+    id: destiny,
+    balance: destinyBalance,
+    credit: destinyCredit,
+    newTransaction: transactionInfo
+  }
+
+  console.log("new transaction > ", transactionInfo);
+
+  //TODO: check cancel transaction action in database (not working)
+  if (validation.status === 'cancelLatest') {
+    await cancelLatestTransaction({id: origin, transactionId: validation.transactionId});
+    await cancelLatestTransaction({id: destiny, transactionId: validation.transactionId});
+  }
+  await updateAccount(originTicket);
+  await updateAccount(destinyTicket);
+  return res.json(transactionInfo);
 }
 
 module.exports = {
