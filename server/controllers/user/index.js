@@ -5,11 +5,6 @@ const listUsers = async (req, res) => {
   return res.json(payload);
 }
 
-const getUser = async (req, res) => {
-  const payload = await User.findById(req.body.id);
-  return res.json(payload);
-}
-
 const createUser = async (req, res) => {
   const {name, cpf, phone} = req.body;
   if (!name || !cpf || !phone) return res.status(422).json({error: true, message: "Ocorreu um erro ao processar as informações. Verifique os dados e tente novamente."});
@@ -32,6 +27,5 @@ const createUser = async (req, res) => {
 
 module.exports = {
   createUser,
-  listUsers,
-  getUser,
+  listUsers
 }
