@@ -8,12 +8,21 @@ const createBeneficiary = async (req, res) => {
     message: 'Dados incompletos: beneficiaryId & originId'
   });
 
+  const originData = await User.findById(originId);
+  const beneficiaryData = await User.findById(beneficiaryId);
+
   await User.updateOne(
     {
       _id: originId,
     },
     {
-      $addToSet: { beneficiaryList: beneficiaryId }
+      $addToSet: { 
+        beneficiaryList: {
+          id: beneficiaryData._id,
+          name: beneficiaryData.name,
+          cpf: beneficiaryData.cpf
+        }
+      }
     }
   )
   await User.updateOne(
@@ -21,7 +30,13 @@ const createBeneficiary = async (req, res) => {
       _id: beneficiaryId
     },
     {
-      $addToSet: { beneficiaryList: originId }
+      $addToSet: { 
+        beneficiaryList: {
+          id: originData._id,
+          name: originData.name,
+          cpf: originData.cpf
+        }
+      }
     }
   )
   return res.json({error: false});
@@ -40,7 +55,11 @@ const removeBeneficiary = async (req, res) => {
       _id: originId,
     },
     {
-      $pull: { beneficiaryList: beneficiaryId }
+      $pull: {
+        beneficiaryList: {
+          id: beneficiaryId
+        }
+      }
     }
   )
   await User.updateOne(
@@ -48,7 +67,11 @@ const removeBeneficiary = async (req, res) => {
       _id: beneficiaryId
     },
     {
-      $pull: { beneficiaryList: originId }
+      $pull: {
+        beneficiaryList: {
+          id: beneficiaryId
+        }
+      }
     }
   )
   return res.json({error: false});
