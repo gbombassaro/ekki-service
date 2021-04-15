@@ -1,5 +1,11 @@
 const User = require('../../models/user');
 
+const getUserData = async (req, res) => { 
+  if (!req.params.id) return res.status(422).json({error: true, message: "O atributo id é obrigatório"})
+  const payload = await User.findById(req.params.id);
+  return res.json(payload);
+}
+
 const listUsers = async (req, res) => {
   const payload = await User.find({});
   return res.json(payload);
@@ -18,7 +24,8 @@ const createUser = async (req, res) => {
     phone: phone,
     beneficiaryList: [],
     balance: 1000,
-    credit: 500,
+    credit: 0,
+    creditLimit: 500,
     transactionHistory: []
   });
 
@@ -27,5 +34,6 @@ const createUser = async (req, res) => {
 
 module.exports = {
   createUser,
-  listUsers
+  listUsers,
+  getUserData
 }
