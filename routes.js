@@ -1,12 +1,22 @@
 const express = require('express');
-const {createUser, listUsers} = require('./server/controllers/user');
+const cors = require('cors');
+const {createUser, listUsers, getUserData} = require('./server/controllers/user');
 const {newTransaction} = require('./server/controllers/transaction');
+const {createBeneficiary, removeBeneficiary} = require('./server/controllers/beneficiaries');
 
-const routes = express.Router();
+const router = express();
 
-routes.get('/api/user/list', listUsers);
-routes.post('/api/user/create', createUser);
+//set CORS
+router.use(cors());
 
-routes.post('/api/transaction/new', newTransaction);
+//endpoints
+router.post('/api/user/create', createUser);
+router.get('/api/user/list', listUsers);
+router.get('/api/user/:id', getUserData);
 
-module.exports = routes;
+router.post('/api/user/beneficiary', createBeneficiary);
+router.delete('/api/user/beneficiary', removeBeneficiary);
+
+router.post('/api/transaction/new', newTransaction);
+
+module.exports = router;
