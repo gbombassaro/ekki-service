@@ -29,7 +29,7 @@ const createFavored = async (req, res) => {
       $addToSet: { 
         favoredList: {
           id: favoredData._id,
-          name: favoredData.name,
+          name,
           cpf: favoredData.cpf,
           phone
         }

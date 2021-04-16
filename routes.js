@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const {createUser, listUsers, getUserData} = require('./server/controllers/user');
 const {newTransaction} = require('./server/controllers/transaction');
-const {createFavored, removeFavored} = require('./server/controllers/beneficiaries');
+const {createFavored, removeFavored} = require('./server/controllers/favoredUsers');
 
 const router = express();
 
