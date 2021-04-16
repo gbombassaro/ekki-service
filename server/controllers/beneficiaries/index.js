@@ -16,8 +16,7 @@ const createFavored = async (req, res) => {
   });
 
   const favoredData = favored[0];
-  const favoredId = favoredData._id;
-  if (originId.toString() === favoredId.toString()) return res.status(422).json({
+  if (originId.toString() === favoredData._id.toString()) return res.status(422).json({
     error: true,
     message: 'Conta inválida.'
   });
@@ -29,23 +28,10 @@ const createFavored = async (req, res) => {
     {
       $addToSet: { 
         favoredList: {
+          id: favoredData._id,
           name: favoredData.name,
           cpf: favoredData.cpf,
           phone
-        }
-      }
-    }
-  )
-  await User.updateOne(
-    {
-      _id: favoredId
-    },
-    {
-      $addToSet: { 
-        favoredList: {
-          name: originData.name,
-          cpf: originData.cpf,
-          phone: originData.phone
         }
       }
     }
@@ -54,37 +40,23 @@ const createFavored = async (req, res) => {
 }
 
 const removeFavored = async (req, res) => {
-  const {originCpf, favoredCpf} = req.body;
+  const {originId, favoredId} = req.body;
   
-  if (!originCpf || !favoredCpf) return res.status(422).json({
+  if (!originId || !favoredId) return res.status(422).json({
     error: true,
     message: 'Dados incompletos'
   });
 
-  await User.updateOne(
-    {
-      cpf: originCpf,
-    },
+  await User.findByIdAndUpdate(
+    {originId},
     {
       $pull: {
         favoredList: {
-          cpf: favoredCpf
+          id: favoredId
         }
       }
     }
-  )
-  await User.updateOne(
-    {
-      cpf: favoredCpf
-    },
-    {
-      $pull: {
-        favoredList: {
-          cpf: favoredCpf
-        }
-      }
-    }
-  )
+  ).then(payload => console.log(payload)).catch(e => console.log(e))
   return res.json({error: false});
 }
 
