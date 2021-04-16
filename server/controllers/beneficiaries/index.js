@@ -1,15 +1,26 @@
 const User = require('../../models/user')
 
-const createBeneficiary = async (req, res) => {
-  const {originId, beneficiaryId} = req.body;
-
-  if (!originId || !beneficiaryId) return res.status(422).json({
-    error: true,
-    message: 'Dados incompletos: beneficiaryId & originId'
-  });
+const createFavored = async (req, res) => {
+  const {originId, name, cpf, phone = ''} = req.body;
 
   const originData = await User.findById(originId);
-  const beneficiaryData = await User.findById(beneficiaryId);
+  if (!originData._id || !name || !cpf) return res.status(422).json({
+    error: true,
+    message: 'Dados incompletos'
+  });
+
+  const favored = await User.find({cpf});
+  if (!favored[0]) return res.status(422).json({
+    error: true,
+    message: 'Não existe uma conta com esse CPF na Ekki'
+  });
+
+  const favoredData = favored[0];
+  const favoredId = favoredData._id;
+  if (originId.toString() === favoredId.toString()) return res.status(422).json({
+    error: true,
+    message: 'Conta inválida.'
+  });
 
   await User.updateOne(
     {
@@ -17,24 +28,24 @@ const createBeneficiary = async (req, res) => {
     },
     {
       $addToSet: { 
-        beneficiaryList: {
-          id: beneficiaryData._id,
-          name: beneficiaryData.name,
-          cpf: beneficiaryData.cpf
+        favoredList: {
+          name: favoredData.name,
+          cpf: favoredData.cpf,
+          phone
         }
       }
     }
   )
   await User.updateOne(
     {
-      _id: beneficiaryId
+      _id: favoredId
     },
     {
       $addToSet: { 
-        beneficiaryList: {
-          id: originData._id,
+        favoredList: {
           name: originData.name,
-          cpf: originData.cpf
+          cpf: originData.cpf,
+          phone: originData.phone
         }
       }
     }
@@ -42,34 +53,34 @@ const createBeneficiary = async (req, res) => {
   return res.json({error: false});
 }
 
-const removeBeneficiary = async (req, res) => {
-  const {originId, beneficiaryId} = req.body;
+const removeFavored = async (req, res) => {
+  const {originCpf, favoredCpf} = req.body;
   
-  if (!originId || !beneficiaryId) return res.status(422).json({
+  if (!originCpf || !favoredCpf) return res.status(422).json({
     error: true,
-    message: 'Dados incompletos: beneficiaryId & originId'
+    message: 'Dados incompletos'
   });
 
   await User.updateOne(
     {
-      _id: originId,
+      cpf: originCpf,
     },
     {
       $pull: {
-        beneficiaryList: {
-          id: beneficiaryId
+        favoredList: {
+          cpf: favoredCpf
         }
       }
     }
   )
   await User.updateOne(
     {
-      _id: beneficiaryId
+      cpf: favoredCpf
     },
     {
       $pull: {
-        beneficiaryList: {
-          id: beneficiaryId
+        favoredList: {
+          cpf: favoredCpf
         }
       }
     }
@@ -78,6 +89,6 @@ const removeBeneficiary = async (req, res) => {
 }
 
 module.exports = {
-  createBeneficiary,
-  removeBeneficiary
+  createFavored,
+  removeFavored
 }

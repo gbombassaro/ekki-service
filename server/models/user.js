@@ -13,7 +13,7 @@ const UserSchema = new Schema({
     type: String,
     required: true,
   },
-  beneficiaryList: {
+  favoredList: {
     type: Array,
     required: false
   },

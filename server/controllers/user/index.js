@@ -22,7 +22,7 @@ const createUser = async (req, res) => {
     name: name,
     cpf: cpf,
     phone: phone,
-    beneficiaryList: [],
+    favoredList: [],
     balance: 1000,
     credit: 0,
     creditLimit: 500,
