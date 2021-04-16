@@ -8,7 +8,7 @@ Projeto backend que simula o serviço backend para um banco.
 <br/>
 
 ## Dependencies
-O projeto roda na porta 3001 e está conectado a um banco MongoDB externo. Utiliza express para gerenciamento das rotas e o mongoose para conexão com o banco de dados. Uma colecão de requisições está disponível no projeto.
+O projeto roda na porta 3001 e está conectado a um banco MongoDB externo. Utiliza express para gerenciamento das rotas e o mongoose para conexão com o banco de dados.
 
 ## Endpoints
 - POST `/api/user/create`
