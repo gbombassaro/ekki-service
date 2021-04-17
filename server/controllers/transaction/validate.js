@@ -37,7 +37,7 @@ const validateOriginAndDestiny = (originData, destinyData, value) => {
       message: 'Saldo insuficiente.',
     }
     status = 'credit';
-    originCredit = originFinalBalance;
+    originCredit = originFinalBalance * -1;
   } else {
     originCredit = 0;
   }
