@@ -24,7 +24,18 @@ O projeto roda na porta 3001 e está conectado a um banco MongoDB externo. Utili
 - GET `/api/user/list`
   Lista todas as entradas no banco
   <pre>
-    [...]
+    [
+      {
+        name: name,
+        cpf: cpf,
+        phone: phone,
+        favoredList: [],
+        balance: 1000,
+        credit: 0,
+        creditLimit: 500,
+        transactionHistory: []
+      }
+    ]
   </pre>
 
 - GET `/api/user/:id`
@@ -59,5 +70,15 @@ O projeto roda na porta 3001 e está conectado a um banco MongoDB externo. Utili
     {
       originId: STRING,
       favoredId: STRING
+    }
+  </pre>
+
+- POST `/api/transaction/new`
+  Processa uma nova transação
+  <pre>
+    {
+      origin: STRING,
+      destiny: STRING
+      value: NUMBER
     }
   </pre>
