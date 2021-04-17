@@ -29,19 +29,20 @@ const validateOriginAndDestiny = (originData, destinyData, value) => {
   let originBalance = originData.balance;
   let originCredit = originData.credit;
   let originFinalBalance = originBalance - value;
+
   //check credit operation for origin account
   if (originFinalBalance < 0) {
-    const {credit, creditLimit} = originData;
-    if (credit > creditLimit) return {
+    if (originFinalBalance < originData.creditLimit * -1) return {
       status: false,
       message: 'Saldo insuficiente.',
     }
     status = 'credit';
-    originBalance = originFinalBalance;
-    originCredit = credit;
+    originCredit = originFinalBalance;
   } else {
-    originBalance = originFinalBalance;
+    originCredit = 0;
   }
+
+  originBalance = originFinalBalance
 
   let destinyBalance = destinyData.balance;
   let destinyCredit = destinyData.credit;
